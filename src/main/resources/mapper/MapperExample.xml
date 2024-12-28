@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.among.trsnctest.repository.RepositoryExample">
+    <update id="updateStatus" parameterType="map">
+        update status_table
+           set status = #{status}
+         where seq_no = #{seqNo}
+    </update>
+    <insert id="insertHistory" parameterType="map">
+        insert into history_table(seq_no, current_dt, ip)
+        values(#{seqNo}, to_char(current_date, 'yyyymmdd'), '192.168.1.1')
+    </insert>
+    <insert id="insertStatus" parameterType="map">
+        insert into status_table(seq_no, status)
+        values(#{seqNo}, #{status})
+    </insert>
+    <select id="selectStatus" resultType="string">
+        select status
+          from status_table
+         where seq_no = #{seqNo}
+    </select>
+</mapper>
