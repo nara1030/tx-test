@@ -12,5 +12,7 @@ Facade와 Service는 모두 `@Service`가 붙는 서비스단이지만, Facade�
 
 Facade 메소드 위와 Service 클래스 위에 `@Transactional`를 붙였음에도 롤백이 안 되어 조금 확인해보니 Checked Exception의 경우는 롤백을 트리거하지 않는다고 한다. 콘솔을 확인해보니 발생하는 예외는 `java.sql.SQLIntegrityConstraintViolationException`였는데 `org.springframework.dao.DuplicateKeyException`에 감싸져 뱉어지고 있었고 이는 Checked Exception이었다. 해서 Facade와 Service에 `@Transactional(rollbackFor = DuplicateKeyException.class)` 이렇게 속성을 추가했으나 동작하지 않았다.  해서 차선으로 예외가 발생하는 Service의 이력 등록 메소드에 try-catch문으로 `DuplicateKeyException` 예외 발생 시 `RuntimeException`을 호출해주도록 변경했다. 그리고 롤백이 제대로 되는지 테스트해보기 위해 테스트 메소드 `testDbWithNormalBehavior()`로 1차 테스트 후 혹시 몰라 API 테스트(`ControllerExample.testWithDb()`)도 진행해보았다.
 
-사실 해결은 했으나 정확한 이해는 하지 못했다. 왜 블로그에 나온 것처럼 `@Transactional(rollbackFor = DuplicateKeyException.class)`로는 해결이 되지 않는지.. 그리고 회사 다른 분들은 `RuntimeException` 발생 안 시키신 거 같은데, 제대로 동작하고 있는건지... 다시 한 번 확인해볼 필요가 있겠다.
+사실 해결은 했으나 정확한 이해는 하지 못했다. 왜 블로그에 나온 것처럼 `@Transactional(rollbackFor = DuplicateKeyException.class)`로는 해결이 되지 않는지.. 그리고 회사 다른 분들은 `RuntimeException` 발생 안 시키신 거 같은데, 제대로 동작하고 있는건지... ~~다시 한 번 확인해볼 필요가 있겠다.~~ 확인해봤는데 동작을 안 한다. 발생하는 예외를 잡아서 RuntimeException을 발생시켰고, 이를 컨트롤러에서 잡았는데 왜 롤백이 안 되는건지 잘 이해가 안 간다. PlatformTransactionManger를 통해 수동으로 트랜잭션을 제어하는 것은 전체 프로젝트 코드의 일관성을 해치는 거 같아 시도해보진 않았다. 아직 이슈가 올라온 건 아니니 시간을 두고 좀 생각해봐야겠다.
 
+### 참고
+[스프링 트랜잭션은 어떻게 롤백될까](https://dkswnkk.tistory.com/760)
